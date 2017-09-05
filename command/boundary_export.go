@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
+	//"os/exec"
 	"runtime"
 	"sync"
 
@@ -37,6 +37,15 @@ func BoundaryExporter(c *cli.Context) error {
 	conn.Open(argv[0])
 	defer conn.Close()
 
+	var filename = fmt.Sprintf("%s/%s", argv[1], "list.txt")
+
+	os.Remove(filename)
+
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+    if err != nil {
+        log.Fatal(err)
+    }
+    
 	// worker function
 	var worker = func(rel *gosmparse.Relation) {
 
@@ -49,15 +58,16 @@ func BoundaryExporter(c *cli.Context) error {
 		// generate json
 		var json = assembler.GenerateJSON()
 
+		/*
 		// child process
 		var child *exec.Cmd
 
 		// increase v8 max memory limit to 8GB for json over 100MB
 		// see: https://github.com/tyrasd/osmtogeojson#usage
-		if len(json.Bytes()) > 104857600 /*(100 * 1024 * 1024)*/ {
-			child = exec.Command("/usr/local/bin/node", "--max_old_space_size=8192", "/home/peter/.go/src/github.com/missinglink/pbf/nodejs/osmtogeojson.js")
+		if len(json.Bytes()) > 104857600 {
+			child = exec.Command("node", "--max_old_space_size=8192", "`which osmtogeojson`")
 		} else {
-			child = exec.Command("/usr/local/bin/node", "/home/peter/.go/src/github.com/missinglink/pbf/nodejs/osmtogeojson.js")
+			child = exec.Command("osmtogeojson")
 		}
 
 		// stdio
@@ -106,6 +116,21 @@ func BoundaryExporter(c *cli.Context) error {
 			ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), json.Bytes(), 0644)
 			ioutil.WriteFile(fmt.Sprintf("%s/%s.err", dir, id), stderrBytes, 0644)
 		}
+		*/
+
+		// pad id with leading zeros
+		var id = fmt.Sprintf("%09d", rel.ID)
+		var dir = fmt.Sprintf("%s/%s/%s/%s/", argv[1], id[0:3], id[3:6], id[6:9])
+
+		// create directory if it doesn't exist
+		os.MkdirAll(dir, 0777)
+
+		ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), json.Bytes(), 0644)
+
+		if _, err := f.Write([]byte(fmt.Sprintf("%s/%s.in%s", dir, id, "\n"))); err != nil {
+			log.Fatal(err)
+		}
+
 	}
 
 	// create a channel for relations
@@ -143,6 +168,8 @@ func BoundaryExporter(c *cli.Context) error {
 
 	// wait for all routines to finish
 	wg.Wait()
-
+    if err := f.Close(); err != nil {
+        log.Fatal(err)
+    }
 	return nil
 }
