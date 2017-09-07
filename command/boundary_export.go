@@ -7,7 +7,8 @@ import (
 	"os"
 	//"os/exec"
 	"runtime"
-	"sync"
+	"sync",
+	"strings"
 
 	"github.com/missinglink/pbf/leveldb"
 	"github.com/missinglink/pbf/lib"
@@ -58,7 +59,7 @@ func BoundaryExporter(c *cli.Context) error {
 		// generate json
 		var json = assembler.GenerateJSON()
 
-		/*
+		
 		// child process
 		var child *exec.Cmd
 
@@ -79,9 +80,19 @@ func BoundaryExporter(c *cli.Context) error {
 		if err := child.Start(); err != nil {
 			log.Println("An error occured: ", err)
 		}
+		var jsonOutput = fmt.Sprintf("{
+  \"version\": 1,
+  \"generator\": \"missinglink pbf\",
+  \"osm3s\": {
+    \"timestamp_osm_base\": \"2017-09-07T19:35:02Z\",
+    \"copyright\": \"The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.\"
+  },
+  \"elements\": [%s]}", strings.Join(strings.Split(string(json.Bytes()),"\n"), ","))
+
+
 
 		// write to stdin
-		stdin.Write(json.Bytes())
+		stdin.Write(jsonOutput)
 		stdin.Close()
 
 		// read from stdio
@@ -110,17 +121,17 @@ func BoundaryExporter(c *cli.Context) error {
 		if len(stdoutBytes) > 0 {
 			ioutil.WriteFile(fmt.Sprintf("%s/%s.geojson", dir, id), stdoutBytes, 0644)
 		}
-
+		
 		// write errors and inputs to disk (on error only)
 		if len(stderrBytes) > 0 {
-			ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), json.Bytes(), 0644)
+			ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), []byte(jsonOutput), 0644)
 			ioutil.WriteFile(fmt.Sprintf("%s/%s.err", dir, id), stderrBytes, 0644)
 		}
-		*/
+		
 
 		// pad id with leading zeros
-		var id = fmt.Sprintf("%09d", rel.ID)
-		var dir = fmt.Sprintf("%s/%s/%s/%s/", argv[1], id[0:3], id[3:6], id[6:9])
+		//var id = fmt.Sprintf("%09d", rel.ID)
+		//var dir = fmt.Sprintf("%s/%s/%s/%s/", argv[1], id[0:3], id[3:6], id[6:9])
 
 		// create directory if it doesn't exist
 		os.MkdirAll(dir, 0777)
