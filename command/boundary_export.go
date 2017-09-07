@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"sync"
 	"strings"
-
+	"time"
 	"github.com/missinglink/pbf/leveldb"
 	"github.com/missinglink/pbf/lib"
 
@@ -59,13 +59,14 @@ func BoundaryExporter(c *cli.Context) error {
 		// generate json
 		var json = assembler.GenerateJSON()
 
-		
+		var jsonOutput = []byte(fmt.Sprintf("{\"version\": 1,\"generator\": \"missinglink pbf\",\"osm3s\": {\"timestamp_osm_base\": \"%s\",\"copyright\": \"The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.\"},\"elements\": [%s]}", time.Now().String(), strings.Join(strings.Split(strings.TrimSpace(string(json.Bytes())),"\n"), ",")))
+
 		// child process
 		var child *exec.Cmd
 
 		// increase v8 max memory limit to 8GB for json over 100MB
 		// see: https://github.com/tyrasd/osmtogeojson#usage
-		if len(json.Bytes()) > 104857600 {
+		if len(jsonOutput) > 104857600 {
 			child = exec.Command("node", "--max_old_space_size=8192", "`which osmtogeojson`")
 		} else {
 			child = exec.Command("osmtogeojson")
@@ -80,7 +81,7 @@ func BoundaryExporter(c *cli.Context) error {
 		if err := child.Start(); err != nil {
 			log.Println("An error occured: ", err)
 		}
-		var jsonOutput = []byte(fmt.Sprintf("{\"version\": 1,\"generator\": \"missinglink pbf\",\"osm3s\": {\"timestamp_osm_base\": \"2017-09-07T19:35:02Z\",\"copyright\": \"The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.\"},\"elements\": [%s]}", strings.Join(strings.Split(strings.TrimSpace(string(json.Bytes())),"\n"), ",")))
+		
 
 
 
