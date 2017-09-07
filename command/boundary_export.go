@@ -80,14 +80,7 @@ func BoundaryExporter(c *cli.Context) error {
 		if err := child.Start(); err != nil {
 			log.Println("An error occured: ", err)
 		}
-		var jsonOutput = fmt.Sprintf("{
-  \"version\": 1,
-  \"generator\": \"missinglink pbf\",
-  \"osm3s\": {
-    \"timestamp_osm_base\": \"2017-09-07T19:35:02Z\",
-    \"copyright\": \"The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.\"
-  },
-  \"elements\": [%s]}", strings.Join(strings.Split(string(json.Bytes()),"\n"), ","))
+		var jsonOutput = fmt.Sprintf("{\"version\": 1,\"generator\": \"missinglink pbf\",\"osm3s\": {\"timestamp_osm_base\": \"2017-09-07T19:35:02Z\",\"copyright\": \"The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.\"},\"elements\": [%s]}", strings.Join(strings.Split(string(json.Bytes()),"\n"), ","))
 
 
 
