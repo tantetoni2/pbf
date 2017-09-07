@@ -80,7 +80,7 @@ func BoundaryExporter(c *cli.Context) error {
 		if err := child.Start(); err != nil {
 			log.Println("An error occured: ", err)
 		}
-		var jsonOutput = fmt.Sprintf("{\"version\": 1,\"generator\": \"missinglink pbf\",\"osm3s\": {\"timestamp_osm_base\": \"2017-09-07T19:35:02Z\",\"copyright\": \"The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.\"},\"elements\": [%s]}", strings.Join(strings.Split(string(json.Bytes()),"\n"), ","))
+		var jsonOutput = []byte(fmt.Sprintf("{\"version\": 1,\"generator\": \"missinglink pbf\",\"osm3s\": {\"timestamp_osm_base\": \"2017-09-07T19:35:02Z\",\"copyright\": \"The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.\"},\"elements\": [%s]}", strings.Join(strings.Split(string(json.Bytes()),"\n"), ",")))
 
 
 
@@ -117,7 +117,7 @@ func BoundaryExporter(c *cli.Context) error {
 		
 		// write errors and inputs to disk (on error only)
 		if len(stderrBytes) > 0 {
-			ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), []byte(jsonOutput), 0644)
+			//ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), jsonOutput, 0644)
 			ioutil.WriteFile(fmt.Sprintf("%s/%s.err", dir, id), stderrBytes, 0644)
 		}
 		
@@ -129,7 +129,7 @@ func BoundaryExporter(c *cli.Context) error {
 		// create directory if it doesn't exist
 		os.MkdirAll(dir, 0777)
 
-		ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), json.Bytes(), 0644)
+		ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), jsonOutput, 0644)
 
 		if _, err := f.Write([]byte(fmt.Sprintf("%s/%s.in%s", dir, id, "\n"))); err != nil {
 			log.Fatal(err)
