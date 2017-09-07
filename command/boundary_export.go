@@ -7,7 +7,7 @@ import (
 	"os"
 	//"os/exec"
 	"runtime"
-	"sync",
+	"sync"
 	"strings"
 
 	"github.com/missinglink/pbf/leveldb"
