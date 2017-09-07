@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	//"os/exec"
+	"os/exec"
 	"runtime"
 	"sync"
 	"strings"
