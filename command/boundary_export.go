@@ -10,6 +10,7 @@ import (
 	"sync"
 	"strings"
 	"time"
+
 	"github.com/missinglink/pbf/leveldb"
 	"github.com/missinglink/pbf/lib"
 
@@ -43,10 +44,10 @@ func BoundaryExporter(c *cli.Context) error {
 	os.Remove(filename)
 
 	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-    if err != nil {
-        log.Fatal(err)
-    }
-    
+	if err != nil {
+		log.Fatal(err)
+	}
+	
 	// worker function
 	var worker = func(rel *gosmparse.Relation) {
 
@@ -68,7 +69,8 @@ func BoundaryExporter(c *cli.Context) error {
 		// see: https://github.com/tyrasd/osmtogeojson#usage
 		if len(jsonOutput) > 104857600 {
 			child = exec.Command("node", "--max_old_space_size=8192", "`which osmtogeojson`")
-		} else {
+		} 
+		else {
 			child = exec.Command("osmtogeojson")
 		}
 
@@ -81,9 +83,6 @@ func BoundaryExporter(c *cli.Context) error {
 		if err := child.Start(); err != nil {
 			log.Println("An error occured: ", err)
 		}
-		
-
-
 
 		// write to stdin
 		stdin.Write(jsonOutput)
@@ -114,28 +113,16 @@ func BoundaryExporter(c *cli.Context) error {
 		// write geojson to disk (on success only)
 		if len(stdoutBytes) > 0 {
 			ioutil.WriteFile(fmt.Sprintf("%s/%s.geojson", dir, id), stdoutBytes, 0644)
+			if _, err := f.Write([]byte(fmt.Sprintf("%s/%s.geojson%s", dir, id, "\n"))); err != nil {
+				log.Println(err)
+			}
 		}
 		
 		// write errors and inputs to disk (on error only)
 		if len(stderrBytes) > 0 {
-			//ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), jsonOutput, 0644)
+			ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), jsonOutput, 0644)
 			ioutil.WriteFile(fmt.Sprintf("%s/%s.err", dir, id), stderrBytes, 0644)
 		}
-		
-
-		// pad id with leading zeros
-		//var id = fmt.Sprintf("%09d", rel.ID)
-		//var dir = fmt.Sprintf("%s/%s/%s/%s/", argv[1], id[0:3], id[3:6], id[6:9])
-
-		// create directory if it doesn't exist
-		os.MkdirAll(dir, 0777)
-
-		ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), jsonOutput, 0644)
-
-		if _, err := f.Write([]byte(fmt.Sprintf("%s/%s.in%s", dir, id, "\n"))); err != nil {
-			log.Fatal(err)
-		}
-
 	}
 
 	// create a channel for relations
@@ -173,8 +160,8 @@ func BoundaryExporter(c *cli.Context) error {
 
 	// wait for all routines to finish
 	wg.Wait()
-    if err := f.Close(); err != nil {
-        log.Fatal(err)
-    }
+	if err := f.Close(); err != nil {
+		log.Fatal(err)
+	}
 	return nil
 }
