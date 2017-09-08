@@ -69,8 +69,7 @@ func BoundaryExporter(c *cli.Context) error {
 		// see: https://github.com/tyrasd/osmtogeojson#usage
 		if len(jsonOutput) > 104857600 {
 			child = exec.Command("node", "--max_old_space_size=8192", "`which osmtogeojson`")
-		} 
-		else {
+		} else {
 			child = exec.Command("osmtogeojson")
 		}
 
