@@ -9,7 +9,7 @@ import (
 )
 
 // BitmaskBoundaries - Load all elements in to memory
-type BitmaskBoundaries struct {
+type BitmaskRelations struct {
 	Pass            int
 	Mutex           *sync.Mutex
 	Masks           *lib.BitmaskMap
@@ -17,10 +17,10 @@ type BitmaskBoundaries struct {
 }
 
 // ReadNode - called once per node
-func (b *BitmaskBoundaries) ReadNode(item gosmparse.Node) { /* noop */ }
+func (b *BitmaskRelations) ReadNode(item gosmparse.Node) { /* noop */ }
 
 // ReadWay - called once per way
-func (b *BitmaskBoundaries) ReadWay(item gosmparse.Way) {
+func (b *BitmaskRelations) ReadWay(item gosmparse.Way) {
 
 	// only run on second pass
 	if b.Pass != 1 {
@@ -39,7 +39,7 @@ func (b *BitmaskBoundaries) ReadWay(item gosmparse.Way) {
 }
 
 // ReadRelation - called once per relation
-func (b *BitmaskBoundaries) ReadRelation(item gosmparse.Relation) {
+func (b *BitmaskRelations) ReadRelation(item gosmparse.Relation) {
 
 	// only run on first pass
 	if b.Pass != 0 {
@@ -50,14 +50,6 @@ func (b *BitmaskBoundaries) ReadRelation(item gosmparse.Relation) {
 	b.Mutex.Lock()
 	b.RelationMembers[item.ID] = item.Members
 	b.Mutex.Unlock()
-
-	// must be boundary:administrative or land_area:administrative
-	if val, ok := item.Tags["boundary"]; !ok || "administrative" != val {
-		if val, ok := item.Tags["land_area"]; !ok || "administrative" != val {
-			return;
-		}
-		//return
-	}
 
 	// insert item in the relations mask
 	b.Masks.Relations.Insert(item.ID)

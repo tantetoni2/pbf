@@ -84,6 +84,11 @@ func main() {
 			Action: command.BitmaskCustom,
 		},
 		{
+			Name:   "genmask-relations",
+			Usage:  "generate a bitmask file containing all relations",
+			Action: command.BitmaskRelations,
+		},
+		{
 			Name:   "genmask-boundaries",
 			Usage:  "generate a bitmask file containing only elements referenced by a boundary:administrative relation",
 			Action: command.BitmaskBoundaries,
