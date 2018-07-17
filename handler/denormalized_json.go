@@ -3,7 +3,9 @@ package handler
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
+	"io/ioutil"
 
 	"github.com/missinglink/gosmparse"
 	"github.com/missinglink/pbf/json"
@@ -22,6 +24,8 @@ type DenormalizedJSON struct {
 	ComputeCentroid bool
 	ComputeGeohash  bool
 	ExportLatLons   bool
+	OutputToFile    bool
+	Path            string
 }
 
 // ReadNode - called once per node
@@ -40,7 +44,18 @@ func (d *DenormalizedJSON) ReadNode(item gosmparse.Node) {
 		obj.Hash = geohash.Encode(item.Lat, item.Lon)
 	}
 
-	d.Writer.Queue <- obj.Bytes()
+	if d.OutputToFile {
+		var id = fmt.Sprintf("%09d", obj.ID)
+		var dir = fmt.Sprintf("%s/%s/%s/%s/", d.Path, id[0:3], id[3:6], id[6:9])
+
+		// create directory if it doesn't exist
+		os.MkdirAll(dir, 0777)
+
+		// write json to disk (on success only)
+		ioutil.WriteFile(fmt.Sprintf("%s%s.json", dir, id), obj.Bytes(), 0644)
+	} else {
+		d.Writer.Queue <- obj.Bytes()
+	}
 }
 
 // ReadWay - called once per way
@@ -92,7 +107,18 @@ func (d *DenormalizedJSON) ReadWay(item gosmparse.Way) {
 	}
 
 	// write
-	d.Writer.Queue <- obj.Bytes()
+	if d.OutputToFile {
+		var id = fmt.Sprintf("%09d", obj.ID)
+		var dir = fmt.Sprintf("%s/%s/%s/%s/", d.Path, id[0:3], id[3:6], id[6:9])
+
+		// create directory if it doesn't exist
+		os.MkdirAll(dir, 0777)
+
+		// write json to disk (on success only)
+		ioutil.WriteFile(fmt.Sprintf("%s/%s.json", dir, id), obj.Bytes(), 0644)
+	} else {
+		d.Writer.Queue <- obj.Bytes()
+	}
 }
 
 // ReadRelation - called once per relation
@@ -228,5 +254,17 @@ func (d *DenormalizedJSON) ReadRelation(item gosmparse.Relation) {
 		obj.Hash = geohash.Encode(obj.Centroid.Lat, obj.Centroid.Lon)
 	}
 
-	d.Writer.Queue <- obj.Bytes()
+	if d.OutputToFile {
+		var id = fmt.Sprintf("%09d", obj.ID)
+		var dir = fmt.Sprintf("%s/%s/%s/%s/", d.Path, id[0:3], id[3:6], id[6:9])
+
+		// create directory if it doesn't exist
+		os.MkdirAll(dir, 0777)
+
+		// write json to disk (on success only)
+		ioutil.WriteFile(fmt.Sprintf("%s/%s.json", dir, id), obj.Bytes(), 0644)
+		
+	} else {
+		d.Writer.Queue <- obj.Bytes()
+	}
 }

@@ -111,16 +111,16 @@ func BoundaryExporter(c *cli.Context) error {
 
 		// write geojson to disk (on success only)
 		if len(stdoutBytes) > 0 {
-			ioutil.WriteFile(fmt.Sprintf("%s/%s.geojson", dir, id), stdoutBytes, 0644)
-			if _, err := f.Write([]byte(fmt.Sprintf("%s/%s.geojson%s", dir, id, "\n"))); err != nil {
+			ioutil.WriteFile(fmt.Sprintf("%s%s.geojson", dir, id), stdoutBytes, 0644)
+			if _, err := f.Write([]byte(fmt.Sprintf("%s%s.geojson%s", dir, id, "\n"))); err != nil {
 				log.Println(err)
 			}
 		}
 		
 		// write errors and inputs to disk (on error only)
 		if len(stderrBytes) > 0 {
-			ioutil.WriteFile(fmt.Sprintf("%s/%s.in", dir, id), jsonOutput, 0644)
-			ioutil.WriteFile(fmt.Sprintf("%s/%s.err", dir, id), stderrBytes, 0644)
+			ioutil.WriteFile(fmt.Sprintf("%s%s.in", dir, id), jsonOutput, 0644)
+			ioutil.WriteFile(fmt.Sprintf("%s%s.err", dir, id), stderrBytes, 0644)
 		}
 	}
 

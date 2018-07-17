@@ -47,6 +47,12 @@ func JSONFlat(c *cli.Context) error {
 	conn.Open(leveldbPath)
 	defer conn.Close()
 
+
+	var outputToFile = c.Bool("file")
+
+	if outputToFile {
+
+	}
 	// create parser handler
 	var handle = &handler.DenormalizedJSON{
 		Conn:            conn,
@@ -55,6 +61,8 @@ func JSONFlat(c *cli.Context) error {
 		ComputeCentroid: c.BoolT("centroid"),
 		ComputeGeohash:  c.Bool("geohash"),
 		ExportLatLons:   c.Bool("vertices"),
+		OutputToFile:    c.Bool("file"),
+		Path: 			 argv[0],
 	}
 
 	// close the writer routine and flush

@@ -33,6 +33,7 @@ func main() {
 				cli.BoolTFlag{Name: "centroid, c", Usage: "compute centroid for non-point geometries"},
 				cli.BoolFlag{Name: "geohash, g", Usage: "compute geohash property for each record"},
 				cli.BoolFlag{Name: "vertices, v", Usage: "also output an array of way vertices"},
+				cli.BoolFlag{Name: "file, f", Usage: "print output to file"},
 			},
 			Action: command.JSONFlat,
 		},
