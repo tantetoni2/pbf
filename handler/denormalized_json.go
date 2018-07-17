@@ -46,11 +46,14 @@ func (d *DenormalizedJSON) ReadNode(item gosmparse.Node) {
 
 	if d.OutputToFile {
 		var id = fmt.Sprintf("%09d", obj.ID)
-		var dir = fmt.Sprintf("%s/%s/%s/%s/", d.Path, id[0:3], id[3:6], id[6:9])
-
+		var dir = fmt.Sprintf("%s-json/%s/%s/%s/", d.Path, id[0:3], id[3:6], id[6:9])
+		log.Printf("save node %s. %s \n", id, dir)
+		//log.Printf("%s", obj.Bytes())
 		// create directory if it doesn't exist
-		os.MkdirAll(dir, 0777)
-
+		err := os.MkdirAll(dir, 0777)
+		if err != nil {
+			log.Fatalf("can not create directory %q: %s", dir, err)
+		}
 		// write json to disk (on success only)
 		ioutil.WriteFile(fmt.Sprintf("%s%s.json", dir, id), obj.Bytes(), 0644)
 	} else {
@@ -109,10 +112,13 @@ func (d *DenormalizedJSON) ReadWay(item gosmparse.Way) {
 	// write
 	if d.OutputToFile {
 		var id = fmt.Sprintf("%09d", obj.ID)
-		var dir = fmt.Sprintf("%s/%s/%s/%s/", d.Path, id[0:3], id[3:6], id[6:9])
+		var dir = fmt.Sprintf("%s-json/%s/%s/%s/", d.Path, id[0:3], id[3:6], id[6:9])
 
 		// create directory if it doesn't exist
-		os.MkdirAll(dir, 0777)
+		err := os.MkdirAll(dir, 0777)
+		if err != nil {
+			log.Fatalf("can not create directory %q: %s", dir, err)
+		}
 
 		// write json to disk (on success only)
 		ioutil.WriteFile(fmt.Sprintf("%s/%s.json", dir, id), obj.Bytes(), 0644)
@@ -256,10 +262,13 @@ func (d *DenormalizedJSON) ReadRelation(item gosmparse.Relation) {
 
 	if d.OutputToFile {
 		var id = fmt.Sprintf("%09d", obj.ID)
-		var dir = fmt.Sprintf("%s/%s/%s/%s/", d.Path, id[0:3], id[3:6], id[6:9])
+		var dir = fmt.Sprintf("%s-json/%s/%s/%s/", d.Path, id[0:3], id[3:6], id[6:9])
 
 		// create directory if it doesn't exist
-		os.MkdirAll(dir, 0777)
+		err := os.MkdirAll(dir, 0777)
+		if err != nil {
+			log.Fatalf("can not create directory %q: %s", dir, err)
+		}
 
 		// write json to disk (on success only)
 		ioutil.WriteFile(fmt.Sprintf("%s/%s.json", dir, id), obj.Bytes(), 0644)
