@@ -68,9 +68,9 @@ func BoundaryExporter(c *cli.Context) error {
 		// increase v8 max memory limit to 8GB for json over 100MB
 		// see: https://github.com/tyrasd/osmtogeojson#usage
 		if len(jsonOutput) > 104857600 {
-			child = exec.Command("node", "--max_old_space_size=8192", "`which osmtogeojson`")
+			child = exec.Command("node", "--max_old_space_size=8192", "`which osmtogeojson -m`")
 		} else {
-			child = exec.Command("osmtogeojson")
+			child = exec.Command("osmtogeojson -m")
 		}
 
 		// stdio
